@@ -2,7 +2,6 @@ package snowflake
 
 import (
 	"bytes"
-	"reflect"
 	"testing"
 )
 
@@ -345,6 +344,14 @@ func TestMarshalsIntBytes(t *testing.T) {
 	}
 }
 
+func isSameError(err, target error) bool {
+	if err == nil {
+		return target == nil
+	}
+
+	return target != nil && err.Error() == target.Error()
+}
+
 func TestUnmarshalJSON(t *testing.T) {
 	tt := []struct {
 		json        string
@@ -359,7 +366,7 @@ func TestUnmarshalJSON(t *testing.T) {
 	for _, tc := range tt {
 		var id ID
 		err := id.UnmarshalJSON([]byte(tc.json))
-		if !reflect.DeepEqual(err, tc.expectedErr) {
+		if !isSameError(err, tc.expectedErr) {
 			t.Fatalf("Expected to get error '%s' decoding JSON, but got '%s'", tc.expectedErr, err)
 		}
 
@@ -424,20 +431,6 @@ func BenchmarkBase58(b *testing.B) {
 }
 func BenchmarkGenerate(b *testing.B) {
 
-	node, _ := NewNode(1)
-
-	b.ReportAllocs()
-
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		_ = node.Generate()
-	}
-}
-
-func BenchmarkGenerateMaxSequence(b *testing.B) {
-
-	NodeBits = 1
-	StepBits = 21
 	node, _ := NewNode(1)
 
 	b.ReportAllocs()
