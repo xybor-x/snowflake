@@ -152,14 +152,21 @@ func ParseInt64(id int64) ID {
 
 // String returns a string of the snowflake ID
 func (f ID) String() string {
+	if f == 0 {
+		return ""
+	}
+
 	return strconv.FormatInt(int64(f), 10)
 }
 
 // ParseString converts a string into a snowflake ID
 func ParseString(id string) (ID, error) {
+	if id == "" {
+		return 0, nil
+	}
+
 	i, err := strconv.ParseInt(id, 10, 64)
 	return ID(i), err
-
 }
 
 // Base2 returns a string base2 of the snowflake ID
